@@ -260,28 +260,19 @@ public class WorkerInputTimesController {
 
 
     private void updateWorkerScheduleInView(Worker worker) {
-        // Clear existing items in the ListViews
         clearListViews();
-
-        // Iterate through each day in the optimized schedule
-        for (OptimizedDaySchedule daySchedule : OptimizedSchedule.optimizedDaySchedules) {
-            ListView<String> dayListView = getDayListView(daySchedule.name);
+        List<String> shifts = OptimizedSchedule.getShiftsForWorker(worker.getUserName());
+        for (String shift : shifts) {
+            String[] parts = shift.split(" ");
+            Week.DayNames dayName = Week.DayNames.valueOf(parts[0]);
+            String time = parts[1];
+            ListView<String> dayListView = getDayListView(dayName);
             if (dayListView != null) {
-                // Iterate through each hour in the day
-                for (Hour hour : daySchedule.getHours()) {
-                    // Check each half-hour segment
-                    for (int halfHour = 0; halfHour < 2; halfHour++) {
-                        String assignedWorkerUsername = hour.halfHours[halfHour];
-                        if (worker.getUserName().equals(assignedWorkerUsername)) {
-                            // If the current worker is assigned to this segment, add it to the ListView
-                            String timeString = String.format("%02d:%02d", hour.hourOfDay, halfHour * 30);
-                            dayListView.getItems().add(timeString);
-                        }
-                    }
-                }
+                dayListView.getItems().add(time);
             }
         }
     }
+
 
     private void clearListViews() {
         sundayListView.getItems().clear();
